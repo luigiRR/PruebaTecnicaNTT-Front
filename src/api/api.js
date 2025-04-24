@@ -1,6 +1,6 @@
 const BASE_URL = 'http://localhost:8080/api/'
 
-async function request(path, { method = 'GET', body=false, token , params={}} = {}) {
+async function request(path, { method = 'GET', body = false, token, params = {} } = {}) {
     const headers = {
         'Content-Type': 'application/json',
     };
@@ -10,8 +10,8 @@ async function request(path, { method = 'GET', body=false, token , params={}} = 
     if (method === 'GET' && params && Object.keys(params).length > 0) {
         const query = new URLSearchParams(params).toString();
         url += `?${query}`;
-      }
-      
+    }
+
     const res = await fetch(`${url}`, {
         method,
         headers,
@@ -22,7 +22,13 @@ async function request(path, { method = 'GET', body=false, token , params={}} = 
         const error = await res.json();
         throw new Error(error.message || 'REQUEST_ERROR');
     }
-    return res.json();
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        return res.json();
+    }
+
+    return 'ok';
 }
 
 export function login(credentials) {
@@ -32,43 +38,51 @@ export function login(credentials) {
     });
 }
 
-export function getOffices(token){
-    return request('office',{
+export function getOffices(token) {
+    return request('office', {
         method: 'GET',
-        body:false,
-        token:token
+        body: false,
+        token: token
     });
 }
 
-export function saveEmployee(payload,token){
-    request('employee',{
+export function saveEmployee(payload, token) {
+    request('employee', {
         method: 'POST',
-        body:  payload,
+        body: payload,
         token: token,
     })
 }
 
-export function getEmployees(token,params){
-    return request('employee',{
+export function getEmployees(token, params) {
+    return request('employee', {
         method: 'GET',
-        body:false,
-        token:token,
-        params:params
+        body: false,
+        token: token,
+        params: params
     })
 }
 
-export function getAssignedOfficesByEmployee(employeeId,token){
-    return request(`employee/get-assigned-offices/${employeeId}`,{
-        method:'GET',
-        body:false,
-        token:token
+export function getAssignedOfficesByEmployee(employeeId, token) {
+    return request(`employee/get-assigned-offices/${employeeId}`, {
+        method: 'GET',
+        body: false,
+        token: token
     })
 }
 
-export function deleteEmployee(employeeId,token){
-    request(`employee/${employeeId}`,{
+export function deleteEmployee(employeeId, token) {
+    request(`employee/${employeeId}`, {
         method: 'DELETE',
-        body:  false,
+        body: false,
+        token: token,
+    })
+}
+
+export function updateEmployee(payload, token) {
+    request(`employee/${payload.id}`, {
+        method: 'PUT',
+        body: payload,
         token: token,
     })
 }

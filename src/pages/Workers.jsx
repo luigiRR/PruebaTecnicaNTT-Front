@@ -2,16 +2,14 @@
 import React from 'react';
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getOffices, saveEmployee, getEmployees, getAssignedOfficesByEmployee, deleteEmployee } from '@/api/api'
+import { getOffices, saveEmployee, getEmployees, getAssignedOfficesByEmployee, deleteEmployee, updateEmployee } from '@/api/api'
 import { useDisclosure } from '@chakra-ui/react'
 import OfficesMultiSelect from '../components/ui/OfficesMultiSelect'
 import {
-  Box,
   Button,
   Container,
   Heading,
   Spinner,
-  Text,
   VStack,
   Modal,
   ModalOverlay,
@@ -41,7 +39,7 @@ import {
 
 export default function Workers() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [id, setId] = useState(null)
+  const [employeeId, setEmployeeId] = useState(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
@@ -174,7 +172,13 @@ export default function Workers() {
       if (hasError) return;
 
       const payload = { firstName, lastName, phone, identityNumber, address, birthdate, selectedOffices }
-      await saveEmployee(payload, user.token)
+
+      if(employeeId){
+        payload.id=employeeId
+        await updateEmployee(payload,user.token)
+      }else{
+        await saveEmployee(payload, user.token)
+      }
       toast({
         title: "Guardado",
         description: `Empleado ${firstName} ${lastName}`,
@@ -184,7 +188,7 @@ export default function Workers() {
         position: 'top',
       });
       onClose();
-      listEmployees();
+      listEmployees(user.token);
     } catch (err) {
       console.error("Error al guardar los datos:", err.message);
     }
@@ -193,6 +197,7 @@ export default function Workers() {
   const handleNew = () => {
     setAction('Nuevo');
     onOpen();
+    setEmployeeId(null)
     setFirstName('');
     setLastName('');
     setPhone('');
@@ -206,7 +211,7 @@ export default function Workers() {
     setAction('Editar');
     onOpen();
 
-    setId(emp.id);
+    setEmployeeId(emp.id);
     setFirstName(emp.firstname);
     setLastName(emp.lastname);
     setPhone(emp.phone);
@@ -236,7 +241,7 @@ export default function Workers() {
         isClosable: true,
         position: 'top',
       });
-      listEmployees();
+      listEmployees(user.token);
     } catch (err) {
       toast({
         title: 'Error al eliminar',
@@ -273,7 +278,7 @@ export default function Workers() {
       </VStack>
 
 
-      {/*TABLAS DE EMPLEADOS */}
+      {/*TABLA DE EMPLEADOS */}
       <Table variant="striped" mt={5} colorScheme="gray" >
         <Thead>
           <Tr>
