@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+      // para que vite-tsconfig-paths vea tus rutas
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"]
+      }
+    }
+  }
+  
