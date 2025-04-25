@@ -38,6 +38,13 @@ export function login(credentials) {
     });
 }
 
+export function register(payload){
+    return request('auth/register',{
+        method: 'POST',
+        body: payload
+    });
+}
+
 export function getOffices(token) {
     return request('office', {
         method: 'GET',

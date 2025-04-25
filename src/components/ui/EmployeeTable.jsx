@@ -1,4 +1,5 @@
-import { Table, Thead, Tbody, Tr, Th, Td, Button } from '@chakra-ui/react';
+import { Table, Thead, Tbody, Tr, Th, Td, Button, Flex } from '@chakra-ui/react';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 
 const EmployeeTable = ({ employees, handleEdit, setToDeleteId, onDelOpen }) => {
     return (
@@ -28,26 +29,28 @@ const EmployeeTable = ({ employees, handleEdit, setToDeleteId, onDelOpen }) => {
                             })}
                         </Td>
                         <Td>
-                            <Button
-                                colorScheme="blue"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEdit(emp)}
-                                mr={2}
-                            >
-                                Editar
-                            </Button>
-                            <Button
-                                colorScheme="red"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    setToDeleteId(emp.id);
-                                    onDelOpen();
-                                }}
-                            >
-                                Eliminar
-                            </Button>
+                            <Flex>
+                                <Button
+                                    colorScheme="blue"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEdit(emp)}
+                                    mr={2}
+                                >
+                                <FaEdit />
+                                </Button>
+                                <Button
+                                    colorScheme="red"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setToDeleteId(emp.id);
+                                        onDelOpen();
+                                    }}
+                                >
+                                    <FaTrash />
+                                </Button>
+                            </Flex>
                         </Td>
                     </Tr>
                 ))}

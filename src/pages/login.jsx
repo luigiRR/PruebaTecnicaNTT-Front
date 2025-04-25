@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/api';
-import { 
-  Box, Button, Input, FormControl, FormLabel, Heading, Container, Text 
+import {
+  Box, Button, Input, FormControl, FormLabel, Heading, Container, Text
 } from '@chakra-ui/react';
 
 export default function Login() {
@@ -17,7 +17,7 @@ export default function Login() {
     setError('');
     try {
       const data = await login({ email, password });
-      sessionStorage.setItem('user',JSON.stringify(data))
+      sessionStorage.setItem('user', JSON.stringify(data));
       navigate('/workers', { replace: true });
     } catch (err) {
       setError(err.message);
@@ -52,6 +52,15 @@ export default function Login() {
             Entrar
           </Button>
         </form>
+        <Button
+          mt={4}
+          colorScheme="blue"
+          variant="outline"
+          w="full"
+          onClick={() => navigate('/register')}
+        >
+          Registrarse
+        </Button>
       </Box>
     </Container>
   );

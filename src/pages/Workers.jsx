@@ -290,7 +290,7 @@ export default function Workers() {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              ¿Estás seguro que deseas eliminar al empleado con ID {toDeleteId}?
+              ¿Estás seguro que deseas eliminar a este empleado?
             </AlertDialogBody>
 
             <AlertDialogFooter>
