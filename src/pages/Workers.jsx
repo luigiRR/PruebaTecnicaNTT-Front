@@ -4,41 +4,29 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getOffices, saveEmployee, getEmployees, getAssignedOfficesByEmployee, deleteEmployee, updateEmployee } from '@/api/api'
 import { useDisclosure } from '@chakra-ui/react'
-import OfficesMultiSelect from '../components/ui/OfficesMultiSelect'
+import EmployeeTable from '../components/ui/EmployeeTable'
+import EmployeeModal from '@/components/ui/EmployeeModal';
 import {
   Button,
   Container,
   Heading,
   Spinner,
   VStack,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  FormLabel,
-  Input,
-  SimpleGrid,
   useToast,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   AlertDialog,
   AlertDialogBody,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Flex,
 } from '@chakra-ui/react'
 
 export default function Workers() {
+  //ABRIR MODAL
   const { isOpen, onOpen, onClose } = useDisclosure()
+
+  //PROPIEDADES DEL EMPLEADO
   const [employeeId, setEmployeeId] = useState(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -55,6 +43,7 @@ export default function Workers() {
 
   const toast = useToast();
 
+  //USESTATES INICIALES
   const [user, setUser] = useState(null)
   const [offices, setOffices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -173,10 +162,10 @@ export default function Workers() {
 
       const payload = { firstName, lastName, phone, identityNumber, address, birthdate, selectedOffices }
 
-      if(employeeId){
-        payload.id=employeeId
-        await updateEmployee(payload,user.token)
-      }else{
+      if (employeeId) {
+        payload.id = employeeId
+        await updateEmployee(payload, user.token)
+      } else {
         await saveEmployee(payload, user.token)
       }
       toast({
@@ -233,7 +222,7 @@ export default function Workers() {
 
   const handleDelete = async (employeeId) => {
     try {
-      await deleteEmployee(employeeId, user.token); 
+      await deleteEmployee(employeeId, user.token);
       toast({
         title: 'Empleado eliminado',
         status: 'success',
@@ -263,73 +252,30 @@ export default function Workers() {
   }
 
   return (
-    <Container maxW="md" centerContent py={8}>
-      <VStack spacing={5} >
-        <Heading as="h2" size="lg">
-          Bienvenido, {user.firstname}
-          <Button ml={5} colorScheme="blue"
-            onClick={handleNew}>
-            Nuevo
-          </Button>
-          <Button colorScheme="red" onClick={handleLogout}>
-            Cerrar sesión
-          </Button>
-        </Heading>
+    <Container centerContent py={8}>
+      <VStack spacing={5} width="100%" align="stretch">
+        <Flex align="center" justify="space-between">
+          <Heading as="h2" size="lg">
+            Bienvenido, {user.firstname}
+          </Heading>
+          <Flex gap={3}>
+            <Button colorScheme="blue" onClick={handleNew}>
+              Nuevo
+            </Button>
+            <Button colorScheme="red" onClick={handleLogout}>
+              Cerrar sesión
+            </Button>
+          </Flex>
+        </Flex>
       </VStack>
 
-
-      {/*TABLA DE EMPLEADOS */}
-      <Table variant="striped" mt={5} colorScheme="gray" >
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Nombre</Th>
-            <Th>Apellido</Th>
-            <Th>Teléfono</Th>
-            <Th>Fecha Nac.</Th>
-            <Th>Acciones</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {employees.map((emp) => (
-            <Tr key={emp.id}>
-              <Td>{emp.id}</Td>
-              <Td>{emp.firstname}</Td>
-              <Td>{emp.lastname}</Td>
-              <Td>{emp.phone}</Td>
-              <Td>
-                {new Date(emp.birthdate).toLocaleDateString('es-PE', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                })}
-              </Td>
-              <Td>
-                <Button
-                  colorScheme="blue"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => { handleEdit(emp) }}
-                >
-                  Editar
-                </Button>
-                <Button
-                  colorScheme="red"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setToDeleteId(emp.id);
-                    onDelOpen();
-                  }}
-                >
-                  Eliminar
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-
+      {/* COMPONENTE TABLA DE EMPLEADOS */}
+      <EmployeeTable
+        employees={employees}
+        handleEdit={handleEdit}
+        setToDeleteId={setToDeleteId}
+        onDelOpen={onDelOpen}
+      />
 
       {/**ALERTA PARA DIALOGO DE ELIMINACION */}
       <AlertDialog
@@ -366,93 +312,28 @@ export default function Workers() {
         </AlertDialogOverlay>
       </AlertDialog>
 
-      {/* MODAL GUARDAR EMPLEADO*/}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{action} Empleado</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <SimpleGrid columns={2} spacing={4}>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Nombre</FormLabel>
-                <Input
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Nombre"
-                />
-              </FormControl>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Apellido</FormLabel>
-                <Input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Apellido"
-                />
-              </FormControl>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Telefono</FormLabel>
-                <Input
-                  value={phone}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d{0,9}$/.test(value)) {
-                      setPhone(value);
-                    }
-                  }}
-                  placeholder="Telefono"
-                />
-              </FormControl>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Documento de Identidad</FormLabel>
-                <Input
-                  value={identityNumber}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d{0,8}$/.test(value)) {
-                      setIdentityNumber(value)
-                    }
-                  }}
-                  placeholder="DNI"
-                />
-              </FormControl>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Direccion</FormLabel>
-                <Input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Direccion"
-                />
-              </FormControl>
-              <FormControl isRequired mb={4}>
-                <FormLabel>Fecha Cumpleaños</FormLabel>
-                <Input
-                  type="date"
-                  value={birthdate}
-                  onChange={(e) => setBirthdate(e.target.value)}
-                  placeholder="Fecha Cumpleaños"
-                />
-              </FormControl>
-            </SimpleGrid>
-            <FormControl mb={4}>
-              <FormLabel>Oficinas</FormLabel>
-              <OfficesMultiSelect
-                offices={offices}
-                selected={selectedOffices}
-                onChange={setSelectedOffices}
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button colorScheme="blue" onClick={handleSave}>
-              Guardar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {/* COMPONENTE MODAL GUARDAR EMPLEADO*/}
+      <EmployeeModal
+        isOpen={isOpen}
+        onClose={onClose}
+        action={action}
+        firstName={firstName}
+        setFirstName={setFirstName}
+        lastName={lastName}
+        setLastName={setLastName}
+        phone={phone}
+        setPhone={setPhone}
+        identityNumber={identityNumber}
+        setIdentityNumber={setIdentityNumber}
+        address={address}
+        setAddress={setAddress}
+        birthdate={birthdate}
+        setBirthdate={setBirthdate}
+        selectedOffices={selectedOffices}
+        setSelectedOffices={setSelectedOffices}
+        offices={offices}
+        handleSave={handleSave}
+      />
 
     </Container>
   )
